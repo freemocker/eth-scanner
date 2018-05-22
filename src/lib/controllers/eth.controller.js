@@ -109,8 +109,8 @@ class EthController {
       })
       .catch((_err) => {
         const err = new StandardErrorWrapper(_err);
-        const resStatusCode = //err.getNthError(0).code ||
-          constants.SYSTEM.HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR;
+        const resStatusCode = err.getNthError(0).code < 1000 ?
+          err.getNthError(0).code : constants.SYSTEM.HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR;
 
         err.append({
           code: constants.SYSTEM.ERROR_CODES.INTERNAL_SERVER_ERROR,
@@ -164,7 +164,7 @@ class EthController {
           const response = new StandardResponseWrapper({
             success: true,
             detail: { tranactions: result[0].transactions },
-          }, constants.SYSTEM.RESPONSE_NAMES.SYNC);
+          }, constants.SYSTEM.RESPONSE_NAMES.FETCH_TRANSACTIONS);
 
           return res.status(constants.SYSTEM.HTTP_STATUS_CODES.OK)
             .json(response.format);
@@ -183,8 +183,8 @@ class EthController {
       })
       .catch((_err) => {
         const err = new StandardErrorWrapper(_err);
-        const resStatusCode = err.getNthError(0).code ||
-          constants.SYSTEM.HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR;
+        const resStatusCode = err.getNthError(0).code < 1000 ?
+          err.getNthError(0).code : constants.SYSTEM.HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR;
 
         err.append({
           code: constants.SYSTEM.ERROR_CODES.INTERNAL_SERVER_ERROR,
@@ -238,7 +238,7 @@ class EthController {
           const response = new StandardResponseWrapper({
             success: true,
             detail: { balance: result[0].balance },
-          }, constants.SYSTEM.RESPONSE_NAMES.SYNC);
+          }, constants.SYSTEM.RESPONSE_NAMES.FETCH_BALANCE);
 
           return res.status(constants.SYSTEM.HTTP_STATUS_CODES.OK)
             .json(response.format);
@@ -257,8 +257,8 @@ class EthController {
       })
       .catch((_err) => {
         const err = new StandardErrorWrapper(_err);
-        const resStatusCode = err.getNthError(0).code ||
-          constants.SYSTEM.HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR;
+        const resStatusCode = err.getNthError(0).code < 1000 ?
+          err.getNthError(0).code : constants.SYSTEM.HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR;
 
         err.append({
           code: constants.SYSTEM.ERROR_CODES.INTERNAL_SERVER_ERROR,
