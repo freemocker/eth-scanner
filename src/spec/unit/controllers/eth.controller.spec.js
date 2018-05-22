@@ -1,5 +1,7 @@
 const EthController = require('../../../lib/controllers/eth.controller');
 const DatabaseSvc = require('../../../lib/services/database.service');
+const StandardErrorWrapper = require('../../../lib/utils/standard-error-wrapper');
+const http = require('../../../lib/utils/http/');
 
 
 describe('Eth controller', function () {
@@ -22,11 +24,71 @@ describe('Eth controller', function () {
     }
   });
 
+  context('can handle transactions inquiry request :: fetchTransactions()', function () {
+
+    context('on success', function () {
+
+      it('should handle request properly', function (done) {
+        stubFuncs.push(stub(EthController, '_handleRequest', () => Promise.resolve([{ balance: 12300 }])));
+
+        req.query = {
+          address: '5a8fc0bf4357fa3530a8188',
+        };
+
+        EthController.fetchTransactions(req, res)
+          .then(() => {
+            expect(EthController._handleRequest).to.have.been.calledWith(match.object, res);
+            done();
+          });
+      });
+
+      it('should finalize with `res` object', function () {
+        stubFuncs.push(stub(EthController, '_handleRequest', () => Promise.resolve([{ balance: 12300 }])));
+
+        req.query = {
+          address: '5a8fc0bf4357fa3530a8188',
+        };
+
+        return expect(EthController.fetchTransactions(req, res)).to.eventually.deep.equal(res);
+      });
+
+    });
+
+    context('on error', function () {
+
+      it('should handle request properly', function (done) {
+        stubFuncs.push(stub(EthController, '_handleRequest', () => Promise.reject(new StandardErrorWrapper({}))));
+
+        req.query = {
+          address: '5a8fc0bf4357fa3530a8188',
+        };
+
+        EthController.fetchTransactions(req, res)
+          .then(() => {
+            expect(EthController._handleRequest).to.have.been.calledWith(match.object, res);
+            done();
+          });
+      });
+
+      it('should finalize with `res` object', function () {
+        stubFuncs.push(stub(EthController, '_handleRequest', () => Promise.reject(new StandardErrorWrapper({}))));
+
+        req.query = {
+          address: '5a8fc0bf4357fa3530a8188',
+        };
+
+        return expect(EthController.fetchTransactions(req, res)).to.eventually.deep.equal(res);
+      });
+
+    });
+
+  });
+
   describe('can handle balance inquiry request :: fetchBalance()', function () {
 
     context('on success', function () {
 
-      it('should call handle request properly', (done) => {
+      it('should handle request properly', function (done) {
         stubFuncs.push(stub(EthController, '_handleRequest', () => Promise.resolve([{ balance: 12300 }])));
 
         req.query = {
@@ -54,22 +116,22 @@ describe('Eth controller', function () {
 
     context('on error', function () {
 
-      it('should call handle request properly', (done) => {
-        stubFuncs.push(stub(EthController, '_handleRequest', () => Promise.reject()));
+      it('should handle request properly', function (done) {
+        stubFuncs.push(stub(EthController, '_handleRequest', () => Promise.reject(new StandardErrorWrapper({}))));
 
         req.query = {
           address: '5a8fc0bf4357fa3530a8188',
         };
 
         EthController.fetchBalance(req, res)
-          .catch(() => {
+          .then(() => {
             expect(EthController._handleRequest).to.have.been.calledWith(match.object, res);
             done();
           });
       });
 
       it('should finalize with `res` object', function () {
-        stubFuncs.push(stub(EthController, '_handleRequest', () => Promise.reject()));
+        stubFuncs.push(stub(EthController, '_handleRequest', () => Promise.reject(new StandardErrorWrapper({}))));
 
         req.query = {
           address: '5a8fc0bf4357fa3530a8188',
@@ -82,16 +144,56 @@ describe('Eth controller', function () {
 
   });
 
-  // [TODO]
   context('can handle sync request :: upsertInfo()', function () {
 
+    context('on success', function () {
+
+      it('should handle request properly', function (done) {
+        stubFuncs.push(stub(http, 'fetchAddressBalance', () => Promise.resolve({ data: { status: '1' } })));
+        stubFuncs.push(stub(http, 'fetchAddressTransactions', () => Promise.resolve({ data: { status: '1' } })));
+        stubFuncs.push(stub(EthController, '_handleRequest', () => Promise.resolve()));
+
+        req.body = {
+          address: '5a8fc0bf4357fa3530a8188',
+        };
+
+        EthController.upsertInfo(req, res)
+          .then(() => {
+            expect(EthController._handleRequest).to.have.been.calledWith(match.object, res);
+            done();
+          });
+      });
+
+      it('should finalize with `res` object', function () {
+        stubFuncs.push(stub(http, 'fetchAddressBalance', () => Promise.resolve({ data: { status: '1' } })));
+        stubFuncs.push(stub(http, 'fetchAddressTransactions', () => Promise.resolve({ data: { status: '1' } })));
+        stubFuncs.push(stub(EthController, '_handleRequest', () => Promise.resolve()));
+
+        req.query = {
+          address: '5a8fc0bf4357fa3530a8188',
+        };
+
+        return expect(EthController.upsertInfo(req, res)).to.eventually.deep.equal(res);
+      });
+
+    });
+
+    context('on error', function () {
+
+      it('should finalize with `res` object', function () {
+        stubFuncs.push(stub(http, 'fetchAddressBalance', () => Promise.reject(new StandardErrorWrapper({}))));
+
+        req.query = {
+          address: '5a8fc0bf4357fa3530a8188',
+        };
+
+        return expect(EthController.upsertInfo(req, res)).to.eventually.deep.equal(res);
+      });
+
+    });
+
+
   });
-
-  // [TODO]
-  context('can handle transactions inquiry request :: fetchTransactions()', function () {
-
-  });
-
 
   context('can handle general request :: _handleRequest()', function () {
 
@@ -124,7 +226,35 @@ describe('Eth controller', function () {
       const promise = EthController._handleRequest(state, res, DatabaseSvc, strategy);
 
       expect(DatabaseSvc.execute).to.have.been.calledWith(state, strategy);
-      return expect(promise).to.eventually.deep.equal(expectedError);
+      return expect(promise).to.eventually.rejectedWith(expectedError);
+    });
+
+  });
+
+  context('on success', function () {
+
+    it('should handle request properly', function (done) {
+      stubFuncs.push(stub(EthController, '_handleRequest', () => Promise.resolve([{ balance: 12300 }])));
+
+      req.query = {
+        address: '5a8fc0bf4357fa3530a8188',
+      };
+
+      EthController.fetchTransactions(req, res)
+        .then(() => {
+          expect(EthController._handleRequest).to.have.been.calledWith(match.object, res);
+          done();
+        });
+    });
+
+    it('should finalize with `res` object', function () {
+      stubFuncs.push(stub(EthController, '_handleRequest', () => Promise.resolve([{ balance: 12300 }])));
+
+      req.query = {
+        address: '5a8fc0bf4357fa3530a8188',
+      };
+
+      return expect(EthController.fetchTransactions(req, res)).to.eventually.deep.equal(res);
     });
 
   });

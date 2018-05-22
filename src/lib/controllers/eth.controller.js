@@ -96,7 +96,7 @@ class EthController {
           tableName: constants.STORE.TABLE_NAMES.ADDRESS_INFO,
         };
 
-        return EthController._handleRequest(state, res, DatabaseService, upsertAddressInfoStrategy)
+        return EthController._handleRequest(state, res, DatabaseService, upsertAddressInfoStrategy);
       })
       .then((result) => {
         const response = new StandardResponseWrapper({

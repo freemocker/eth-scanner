@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+
 const StandardErrorWrapper = require('../../utils/standard-error-wrapper');
 const constants = require('../../constants/');
 

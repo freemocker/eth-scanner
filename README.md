@@ -8,8 +8,8 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-- Node.js
-- npm
+- Node.js (>= v8.9.4)
+- npm (>= v3.10.9)
 - Database of your choice: MongoDB, Postgres or both
 	- [Suggested MongoDB installation] (https://docs.mongodb.com/manual/installation/)
 	- [Suggested Postgres installation] (https://postgresapp.com/)
@@ -31,8 +31,6 @@ $ ./examples/database/mongo.sample.js
 $ # It should print out the result of each CRUD operations...
 ```
 
-***It should print out the result of each CRUD operations***
-
 #### Postgres Driver
 
 ```
@@ -48,7 +46,7 @@ $ # Start MongoDB daemon or/and Postgres server...
 $ npm start
 ```
 
-***[Note] It runs with MongoDB driver by default. Switching to Posgres driver requires only the following one change to any of database strategy object of your choice***
+***[Note] It runs with MongoDB driver by default. Switching to Posgres driver requires only the following one change to any of database strategy object of your choice:***
 
 ```
 {
@@ -63,7 +61,7 @@ $ npm start
 }
 ```
 
-### Verify If It Running Properly
+### Verify if it running properly
 
 #### Step 1 - Sync with [Etherscan API] (https://etherscan.io/apis) for the given ETH address
 
@@ -109,6 +107,21 @@ curl -X GET http://localhost:8087/api/v1/eth/transactions?address=+0xde0b295669a
 ```
 {"result":{"meta":{"name":"FETCH_TRANSACTIONS"},"data":[{"success":true,"detail":{"transactions":[...]}}]}}
 ```
+
+## Testing and Contributing
+
+### Style Lint
+
+```
+$ npm run lint
+```
+
+### Unit test
+
+```
+$ npm run unit-test
+```
+
 
 ## Technology
 
